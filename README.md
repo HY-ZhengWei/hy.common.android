@@ -1,8 +1,14 @@
 # hy.common.android
 
 
+* [引入aar的方法](#引入aar的方法)
+* [hy.common.android.aar通用包](#hy.common.android.aar通用包)
 
-引入aar的方法（以Android Studio为例）
+
+
+引入aar的方法
+------
+以Android Studio为例
 
     1. 将hy.common.android.aar拷贝到工程的lib目录中。
 
@@ -30,3 +36,8 @@
 
     4. 同步更新配置到工程
         [Tools] -> [Android] -> [Sync Project with Gradle Files]
+
+
+
+hy.common.android.aar通用包
+------
