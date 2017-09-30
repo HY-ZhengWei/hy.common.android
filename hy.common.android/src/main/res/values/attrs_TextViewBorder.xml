@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="TextViewBorder">
+        <attr name="borderColor"       format="color" />
+        <attr name="borderSize"        format="integer" />
+        <attr name="isBorder"          format="boolean" />
+    </declare-styleable>
+
+</resources>
