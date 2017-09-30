@@ -7,7 +7,7 @@
     1. 将hy.common.android.aar拷贝到工程的lib目录中。
 
     2. 在build.gradle添加repositories节点
-```xml
+```
     android {
         ...
         repositories {
@@ -22,7 +22,7 @@
 ```
 
     3. 在build.gradle中的节点添加编译的aar包
-```xml
+```
     dependencies {
         compile(name: 'hy.common.android', ext: 'aar')
     }
