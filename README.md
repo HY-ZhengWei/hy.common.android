@@ -41,4 +41,4 @@
 
 通用开发包
 ------
-hy.common.android.aar
+[hy.common.android.aar下载](hy.common.android.aar)
