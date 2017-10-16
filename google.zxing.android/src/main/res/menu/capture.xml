@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:actionbar="http://schemas.android.com/apk/res-auto">
+
+  <item android:id="@+id/qrcode_btn_file"
+        android:title="@string/title_qrcode_file"
+        android:icon="@drawable/ic_qrcode_file_24dp"
+        actionbar:showAsAction="always"/>
+
+  <item android:id="@+id/qrcode_btn_type"
+        android:title="@string/title_qrcode_type"
+        android:icon="@drawable/ic_qrcode_2d_24dp"
+        actionbar:showAsAction="always"/>
+
+  <item android:id="@+id/qrcode_btn_flash_light"
+        android:title="@string/title_qrcode_flash_light"
+        android:icon="@drawable/ic_qrcode_flash_light_close_24dp"
+        actionbar:showAsAction="always"/>
+
+</menu>

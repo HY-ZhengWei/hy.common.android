@@ -3,6 +3,7 @@
 
 * [引入aar的方法](#引入aar的方法)
 * [通用开发包 hy.common.android.aar](#通用开发包)
+* [二维码开发包 google.zxing.android.aar](#二维码开发包)
 
 
 
@@ -42,3 +43,8 @@
 通用开发包
 ------
 [hy.common.android.aar下载](hy.common.android.aar)
+
+
+二维码开发包
+------
+[google.zxing.android.aar下载](google.zxing.android.aar) 基本ZXing V3.3.1

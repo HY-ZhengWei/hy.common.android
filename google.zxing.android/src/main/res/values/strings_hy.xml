@@ -1,0 +1,12 @@
+<resources>
+    <string name="title_qrcode">二维码</string>
+    <string name="title_qrcode_file">扫描图片</string>
+    <string name="title_qrcode_type">扫码类型</string>
+    <string name="title_qrcode_flash_light">闪光灯</string>
+    <string name="msg_qrcode_type_1d_status">请将条形码置于取景框内扫描</string>
+    <string name="msg_qrcode_type_2d_status">请将二维码置于取景框内扫描</string>
+    <string name="msg_qrcode_type_1d">扫码条形码</string>
+    <string name="msg_qrcode_type_2d">扫码二维码</string>
+    <string name="msg_qrcode_file_redo">未识别出，请重新尝试</string>
+    <string name="msg_qrcode_file_cancel">取消</string>
+</resources>

@@ -1,1 +1,1 @@
-include ':app', ':hy.common.android'
+include ':app', ':hy.common.android', ':google.zxing.android'
