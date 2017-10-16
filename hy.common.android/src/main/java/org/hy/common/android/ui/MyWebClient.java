@@ -25,6 +25,8 @@ import org.hy.common.android.R;
 
 
 /**
+ * 自定义浏览器
+ *
  * Created by ZhengWei(HY) on 2017/8/15.
  */
 public class MyWebClient extends WebView
