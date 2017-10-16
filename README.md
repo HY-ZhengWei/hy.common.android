@@ -32,6 +32,7 @@
 ```
     dependencies {
         compile(name: 'hy.common.android', ext: 'aar')
+        compile(name: 'google.zxing.android', ext: 'aar')
     }
 ```
 
