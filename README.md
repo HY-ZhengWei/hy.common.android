@@ -173,18 +173,44 @@ Android Studio使用二维码、条形码组件的方法如下
 10. 动态权限的申请
 用 EasyPermissions 来动态申请
 ```java
-    @AfterPermissionGranted($Permission_QRCode)
-    private void permissionQRCode()
+    public class MainActivity implements EasyPermissions.PermissionCallbacks
     {
-        String [] perms = {Manifest.permission.CAMERA
-                          ,Manifest.permission.VIBRATE
-                          ,Manifest.permission.READ_EXTERNAL_STORAGE
-                          ,Manifest.permission.WRITE_EXTERNAL_STORAGE
-                          ,Manifest.permission.READ_PHONE_STATE};
-
-        if (!EasyPermissions.hasPermissions(this, perms))
+        @AfterPermissionGranted($Permission_QRCode)
+        private void permissionQRCode()
         {
-            EasyPermissions.requestPermissions(this, "扫描二维码需要打开相机的权限", $Permission_QRCode, perms);
+            String [] perms = {Manifest.permission.CAMERA
+                              ,Manifest.permission.VIBRATE
+                              ,Manifest.permission.READ_EXTERNAL_STORAGE
+                              ,Manifest.permission.WRITE_EXTERNAL_STORAGE
+                              ,Manifest.permission.READ_PHONE_STATE};
+    
+            if (!EasyPermissions.hasPermissions(this, perms))
+            {
+                EasyPermissions.requestPermissions(this, "扫描二维码需要打开相机的权限", $Permission_QRCode, perms);
+            }
+        }
+        
+        @Override
+        public void onPermissionsGranted(int requestCode, List<String> perms)
+        {
+            // 获取成功的权限列表
+        }
+    
+    
+        @Override
+        public void onPermissionsDenied(int requestCode, List<String> perms)
+        {
+            // 获取失败的权限列表
+        }
+    
+    
+        @Override
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+        {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    
+            // EasyPermissions handles the request result.
+            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
         }
     }
 ```
