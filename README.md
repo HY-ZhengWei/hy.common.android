@@ -104,8 +104,8 @@ Android Studio使用方法如下
 ```
 
 3. 打开二维码、条形码界面
-```android
-/** 二维码标记 */
+```java
+    /** 二维码标记 */
     private static final int $Result_Scan = 17081;
     
     Intent v_CaptureIntent = new Intent(MainActivity.this ,CaptureActivity.class);
@@ -113,7 +113,7 @@ Android Studio使用方法如下
 ```
 
 4. 获取二维码、条形码的信息
-```android
+```java
     @Override
     protected void onActivityResult(int i_RequestCode, int i_ResultCode, Intent i_Data)
     {
