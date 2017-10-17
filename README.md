@@ -4,6 +4,7 @@
 * [引入aar的方法](#引入aar的方法)
 * [通用开发包 hy.common.android.aar](#通用开发包)
 * [二维码开发包 google.zxing.android.aar](#二维码开发包)
+* [二维码、条形码组件的使用方法](#使用二维码、条形码组件的方法如下)
 
 
 
@@ -54,7 +55,7 @@
 
 ![image](images/Demo-1D.png)
 
-Android Studio使用二维码、条形码组件的方法如下
+使用二维码、条形码组件的方法如下
 --------
 1. 参见 [引入aar的方法](#引入aar的方法)
 
