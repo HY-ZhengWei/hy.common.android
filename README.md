@@ -133,7 +133,7 @@ Android Studio使用方法如下
     }
 ```
 
-5. 更改界面的上任一文字信息，如改标题
+5. （可选）更改界面的上任一文字信息，如改标题
 打开values/string_hy.xml中的信息，在新的App应用中，
 
 在values/string.xml覆盖重写即可
@@ -141,15 +141,21 @@ Android Studio使用方法如下
     <string name="title_qrcode">改标题</string>
 ```
 
-6. 中文识别（可选）
+6. （可选）中文识别
 ```java
     v_Content = new String(v_Content.getBytes("ISO-8859-1"), "GBK");
 ```
 
-7. 网址http前缀转小写后，才能正确调用系统浏览器打开网址（可选）
+7. （可选）网址http前缀转小写后，才能正确调用系统浏览器打开网址
 ```java
     if ( v_Content.toLowerCase().trim().toLowerCase().startsWith("http") )
     {
         v_Content = v_Content.substring(0 ,5).toLowerCase() + v_Content.substring(5);
     }
+```
+
+8. （可选）横屏、竖屏的改变
+```java
+    // true为竖屏; false为横屏
+    HYControl.$Direction = true;
 ```
