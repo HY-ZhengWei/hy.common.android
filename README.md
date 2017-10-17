@@ -216,4 +216,5 @@
 ```
 
 11. 本模块引用 zxing.jar 包，其源码链接如下
+引用 https://github.com/HY-ZhengWei/hy.common.base 类库
 引用 https://github.com/HY-ZhengWei/hy.common.zxing 类库
