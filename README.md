@@ -160,8 +160,7 @@ Android Studio使用二维码、条形码组件的方法如下
     HYControl.$Direction = true;
 ```
 
-9. 固有权限的设置
-在 AndroidManifest.xml 中配置
+9. 固有权限在 AndroidManifest.xml 中配置
 ```xml
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.VIBRATE" />
