@@ -132,3 +132,16 @@ Android Studio使用方法如下
         }
     }
 ```
+
+5. 中文识别（可选）
+```java
+    v_Content = new String(v_Content.getBytes("ISO-8859-1"), "GBK");
+```
+
+6. http前缀转小写后，才能调用系统浏览器正确打开网址
+```java
+    if ( v_Content.toLowerCase().trim().toLowerCase().startsWith("http") )
+    {
+        v_Content = v_Content.substring(0 ,5).toLowerCase() + v_Content.substring(5);
+    }
+```
