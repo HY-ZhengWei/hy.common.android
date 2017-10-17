@@ -214,5 +214,5 @@ Android Studio使用二维码、条形码组件的方法如下
     }
 ```
 
-11. 本模块引用Jar包，其源码链接如下
+11. 本模块引用 zxing.jar 包，其源码链接如下
 引用 https://github.com/HY-ZhengWei/hy.common.zxing 类库
