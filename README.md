@@ -159,3 +159,32 @@ Android Studio使用二维码、条形码组件的方法如下
     // true为竖屏; false为横屏
     HYControl.$Direction = true;
 ```
+
+9. 固有权限的设置
+在 AndroidManifest.xml 中配置
+```xml
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+```
+
+10. 动态权限的申请
+用 EasyPermissions 来动态申请
+```java
+    @AfterPermissionGranted($Permission_QRCode)
+    private void permissionQRCode()
+    {
+        String [] perms = {Manifest.permission.CAMERA
+                          ,Manifest.permission.VIBRATE
+                          ,Manifest.permission.READ_EXTERNAL_STORAGE
+                          ,Manifest.permission.WRITE_EXTERNAL_STORAGE
+                          ,Manifest.permission.READ_PHONE_STATE};
+
+        if (!EasyPermissions.hasPermissions(this, perms))
+        {
+            EasyPermissions.requestPermissions(this, "扫描二维码需要打开相机的权限", $Permission_QRCode, perms);
+        }
+    }
+```
