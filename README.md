@@ -135,6 +135,7 @@ Android Studio使用方法如下
 
 5. 更改界面的上任一文字信息，如改标题
 打开values/string_hy.xml中的信息，在新的App应用中，
+
 在values/string.xml覆盖重写即可
 ```xml
     <string name="title_qrcode">改标题</string>
