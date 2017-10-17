@@ -54,7 +54,7 @@
 
 ![image](images/Demo-1D.png)
 
-Android Studio使用方法如下
+Android Studio使用二维码、条形码组件的方法如下
 --------
 1. 参见 [引入aar的方法](#引入aar的方法)
 
