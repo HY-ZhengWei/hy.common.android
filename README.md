@@ -51,4 +51,5 @@
 [google.zxing.android.aar下载](google.zxing.android.aar) 基本ZXing V3.3.1
 
 ![image](images/Demo-2D.png)
+
 ![image](images/Demo-1D.png)
