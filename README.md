@@ -46,6 +46,8 @@
 ------
 [hy.common.android.aar下载](hy.common.android.aar)
 
+引用 https://github.com/HY-ZhengWei/hy.common.base 类库
+
 
 二维码开发包
 ------
