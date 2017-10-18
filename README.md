@@ -144,7 +144,17 @@
 
 6. （可选）中文识别
 ```java
-    v_Content = StringHelp.charEncoding(v_Content ,"ISO-8859-1" ,"GBK");
+    // 转换编码，防止如中石油发票上二维码的乱码
+    String v_CE = StringHelp.toCharEncoding(v_Content ,"ISO-8859-1" ,"GBK");
+    if ( v_CE.indexOf("??") >= 0  )
+    {
+        v_CE = StringHelp.toCharEncoding(v_Content ,"ISO-8859-1" ,"UTF-8");
+    }
+    if ( v_CE.indexOf("??") >= 0  )
+    {
+        // 可能原本就是ISO-8859-1的编码，此判定必须放在最后
+        v_CE = v_Content;
+    }
 ```
 
 7. （可选）网址http前缀转小写后，才能正确调用系统浏览器打开网址
