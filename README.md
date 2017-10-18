@@ -148,16 +148,42 @@
 
 6. （可选）中文识别
 ```java
-    // 转换编码，防止如中石油发票上二维码的乱码
-    String v_CE = StringHelp.toCharEncoding(v_Content ,"ISO-8859-1" ,"GBK");
-    if ( v_CE.indexOf("??") >= 0  )
+    /** 二维码的识别编码 */
+    private static final String    $2DCharEncoding     = "GBK";
+
+    /** 二维码识别后的转码的字符集 */
+    private static final String [] $2DCharEncodingTos  = {"UTF-8" ,$2DCharEncoding ,"ISO-8859-1" ,"GB2312" ,"GB18030" ,"Big5" ,"ASCII" ,"UTF-16" ,"UTF-32" ,"Shift-JIS"};
+
+
+
+    /**
+     * 简单判定文本是否为乱码
+     *
+     * @param i_Text
+     * @return
+     */
+    private boolean isToCharEncodingError(String i_Text)
     {
-        v_CE = StringHelp.toCharEncoding(v_Content ,"ISO-8859-1" ,"UTF-8");
+        return StringHelp.isContains(i_Text ,"??" ,"�" ,"㼿" ,"ä" ,"" ,"å" ,"§" ,"Ð" ,"¾","\uE21E");
     }
-    if ( v_CE.indexOf("??") >= 0  )
+    
+    
+    
+    // 转换编码，防止如中石油发票上二维码的乱码
+    String v_2DCE = "";
+    for (int i=0; i<$2DCharEncodingTos.length; i++)
     {
-        // 可能原本就是ISO-8859-1的编码，此判定必须放在最后
-        v_CE = v_Content;
+        v_2DCE = StringHelp.toCharEncoding(v_Content ,$2DCharEncoding ,$2DCharEncodingTos[i]);
+
+        if ( !isToCharEncodingError(v_2DCE) )
+        {
+            break;
+        }
+    }
+    if ( isToCharEncodingError(v_2DCE) )
+    {
+        // 可能原本就是默认的编码，此判定必须放在最后
+        v_2DCE = v_Content;
     }
 ```
 
@@ -230,6 +256,7 @@
 ```
 
 11. 本模块引用 zxing.jar 包，其源码链接如下
+
 引用 https://github.com/HY-ZhengWei/hy.common.base 类库
 
 引用 https://github.com/HY-ZhengWei/hy.common.zxing 类库
