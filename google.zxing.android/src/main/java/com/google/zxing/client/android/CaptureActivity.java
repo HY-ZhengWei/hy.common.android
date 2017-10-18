@@ -73,14 +73,15 @@ import com.google.zxing.client.android.result.ResultHandlerFactory;
 import com.google.zxing.client.android.result.supplement.SupplementalInfoRetriever;
 import com.google.zxing.common.HybridBinarizer;
 
-import org.hy.common.android.AHelp;
 import org.hy.common.Help;
+import org.hy.common.android.AHelp;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -534,7 +535,11 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
           try
           {
-            result = reader.decode(binaryBitmap);
+            Map<DecodeHintType ,Object> v_Hints = new HashMap<DecodeHintType ,Object>();
+
+            v_Hints.put(DecodeHintType.CHARACTER_SET ,this.characterSet);
+
+            result = reader.decode(binaryBitmap ,v_Hints);
           }
           catch (Exception e)
           {

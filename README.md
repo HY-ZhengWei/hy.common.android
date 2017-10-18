@@ -112,6 +112,8 @@
     private static final int $Result_Scan = 17081;
     
     Intent v_CaptureIntent = new Intent(MainActivity.this ,CaptureActivity.class);
+    // 设置二维码编码。可选的，当不设置时，默认为ISO-8859-1
+    v_CaptureIntent.putExtra(Intents.Scan.CHARACTER_SET ,"GBK");
     startActivityForResult(v_CaptureIntent ,$Result_Scan);
 ```
 
@@ -229,4 +231,5 @@
 
 11. 本模块引用 zxing.jar 包，其源码链接如下
 引用 https://github.com/HY-ZhengWei/hy.common.base 类库
+
 引用 https://github.com/HY-ZhengWei/hy.common.zxing 类库
