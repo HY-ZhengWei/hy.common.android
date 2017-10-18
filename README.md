@@ -144,7 +144,7 @@
 
 6. （可选）中文识别
 ```java
-    v_Content = new String(v_Content.getBytes("ISO-8859-1"), "GBK");
+    v_Content = StringHelp.charEncoding(v_Content ,"ISO-8859-1" ,"GBK");
 ```
 
 7. （可选）网址http前缀转小写后，才能正确调用系统浏览器打开网址
