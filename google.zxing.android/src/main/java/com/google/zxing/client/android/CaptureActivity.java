@@ -94,6 +94,9 @@ import java.util.Map;
  */
 public final class CaptureActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
+  /** Intent访问时，标题文字的标识 */
+  public static final String $Title              = "Title";
+
   /** 返回二维码编码的标识 */
   public static final String $Decode_Content_Key = "codedContent";
 
@@ -197,6 +200,13 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     else
     {
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    String v_Title = getIntent().getStringExtra($Title);
+
+    if ( !Help.isNull(v_Title) )
+    {
+      this.setTitle(v_Title);
     }
   }
 

@@ -112,8 +112,13 @@
     private static final int $Result_Scan = 17081;
     
     Intent v_CaptureIntent = new Intent(MainActivity.this ,CaptureActivity.class);
+    
     // 设置二维码编码。可选的，当不设置时，默认为ISO-8859-1
     v_CaptureIntent.putExtra(Intents.Scan.CHARACTER_SET ,"GBK");
+    
+    // 设置标题文字
+    v_CaptureIntent.putExtra(CaptureActivity.$Title ,"二维码");
+    
     startActivityForResult(v_CaptureIntent ,$Result_Scan);
 ```
 
