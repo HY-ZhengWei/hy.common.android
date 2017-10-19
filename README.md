@@ -187,18 +187,19 @@
     }
 ```
 
-7. （可选）网址http前缀转小写后，才能正确调用系统浏览器打开网址
-```java
-    if ( v_Content.toLowerCase().trim().toLowerCase().startsWith("http") )
-    {
-        v_Content = v_Content.substring(0 ,5).toLowerCase() + v_Content.substring(5);
-    }
-```
-
-8. （可选）横屏、竖屏的改变
+7. （可选）横屏、竖屏的改变
 ```java
     // true为竖屏; false为横屏
     HYControl.$Direction = true;
+```
+
+8. 注意：网址http前缀转小写后，才能正确调用系统浏览器打开网址。并且前后不能有空格。
+```java
+    v_Content = v_Content.trim();
+    if ( v_Content.toLowerCase().startsWith("http") )
+    {
+        v_Content = v_Content.substring(0 ,5).toLowerCase() + v_Content.substring(5);
+    }
 ```
 
 9. 固有权限在 AndroidManifest.xml 中配置
