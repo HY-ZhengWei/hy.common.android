@@ -181,7 +181,17 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     if (actionBar != null) {
       actionBar.setHomeButtonEnabled(true);
       actionBar.setDisplayHomeAsUpEnabled(true);
-      actionBar.setTitle(R.string.title_qrcode);
+
+      String v_Title = getIntent().getStringExtra($Title);
+
+      if ( !Help.isNull(v_Title) )
+      {
+        actionBar.setTitle(v_Title);
+      }
+      else
+      {
+        actionBar.setTitle(R.string.title_qrcode);
+      }
     }
 
     hasSurface = false;
@@ -200,13 +210,6 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     else
     {
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    }
-
-    String v_Title = getIntent().getStringExtra($Title);
-
-    if ( !Help.isNull(v_Title) )
-    {
-      this.setTitle(v_Title);
     }
   }
 
