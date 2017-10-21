@@ -328,8 +328,9 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
       }
 
+      characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
       // 两次编码同时解码  ZhengWei(HY) Add 2017-10-21
-//      String v_CharEncoding = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+//      String v_CharEncoding =
 //      if ( !Help.isNull(v_CharEncoding) )
 //      {
 //          String [] v_CharEncodings = v_CharEncoding.split(";");
