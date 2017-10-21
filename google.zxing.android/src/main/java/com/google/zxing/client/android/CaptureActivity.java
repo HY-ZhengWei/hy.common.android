@@ -95,22 +95,25 @@ import java.util.Map;
 public final class CaptureActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
   /** Intent访问时，标题文字的标识 */
-  public static final String $Title              = "Title";
+  public  static final String $Title                = "Title";
 
   /** 返回二维码编码的标识 */
-  public static final String $Decode_Content_Key = "codedContent";
+  public  static final String $Decode_Content_Key   = "codedContent";
+
+  /** 返回二维码编码的标识(第二个解码结果) */
+  private static final String $Decode_Content_Key02 = "codedContent02";
 
   /** 返回二维码图像的标识 */
-  public static final String $Decode_BitMap_Key  = "codedBitmap";
+  public  static final String $Decode_BitMap_Key    = "codedBitmap";
 
   /** 扫码类型 */
-  public static final String $Decode_QRCodeType  = "qrCodeType";
+  public  static final String $Decode_QRCodeType    = "qrCodeType";
 
   /** 没有扫描结果 */
-  public static final int    $Result_NotScan     = 1701;
+  public  static final int    $Result_NotScan       = 1701;
 
   /** 打开相册 */
-  public static final int    $Result_PhotoAlbum  = 1704;
+  public  static final int    $Result_PhotoAlbum    = 1704;
 
   private static final String TAG = CaptureActivity.class.getSimpleName();
 
@@ -325,8 +328,28 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
       }
 
-      characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
-
+      // 两次编码同时解码  ZhengWei(HY) Add 2017-10-21
+//      String v_CharEncoding = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+//      if ( !Help.isNull(v_CharEncoding) )
+//      {
+//          String [] v_CharEncodings = v_CharEncoding.split(";");
+//
+//          characterSet = v_CharEncodings[0];
+//
+//          if ( v_CharEncodings.length >= 2 )
+//          {
+//              characterSet02 = v_CharEncodings[1];
+//          }
+//          else
+//          {
+//              characterSet02 = null;
+//          }
+//      }
+//      else
+//      {
+//          characterSet   = v_CharEncoding;
+//          characterSet02 = null;
+//      }
     }
 
     SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
@@ -544,29 +567,40 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
           RGBLuminanceSource source = new RGBLuminanceSource(width,height,pixels);
           BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
           Reader reader = new MultiFormatReader();
-          Result result = null;
+          Result result01 = null;
+          Result result02 = null;
 
           try
           {
             Map<DecodeHintType ,Object> v_Hints = new HashMap<DecodeHintType ,Object>();
 
             v_Hints.put(DecodeHintType.CHARACTER_SET ,this.characterSet);
+            result01 = reader.decode(binaryBitmap ,v_Hints);
 
-            result = reader.decode(binaryBitmap ,v_Hints);
+//            if ( characterSet02 != null )
+//            {
+//                v_Hints.put(DecodeHintType.CHARACTER_SET, this.characterSet02);
+//                result02 = reader.decode(binaryBitmap ,v_Hints);
+//            }
           }
           catch (Exception e)
           {
             Toast.makeText(CaptureActivity.this ,R.string.msg_qrcode_file_redo ,Toast.LENGTH_LONG).show();
           }
 
-          if ( result != null && !Help.isNull(result.getText()) )
+          if ( result01 != null && !Help.isNull(result01.getText()) )
           {
             // 返回扫描结果
             Intent v_ResultData = new Intent();
 
-            v_ResultData.putExtra($Decode_Content_Key, result.getText());
+            v_ResultData.putExtra($Decode_Content_Key, result01.getText());
             v_ResultData.putExtra($Decode_QRCodeType, HYControl.$QRCodeType);
             // 图片太长，传递会异常 v_ResultData.putExtra($Decode_BitMap_Key  ,bitmap);
+
+//              if ( result02 != null && !Help.isNull(result02.getText()) )
+//              {
+//                  v_ResultData.putExtra($Decode_Content_Key02, result02.getText());
+//              }
 
             setResult(RESULT_OK, v_ResultData);
             finish();
