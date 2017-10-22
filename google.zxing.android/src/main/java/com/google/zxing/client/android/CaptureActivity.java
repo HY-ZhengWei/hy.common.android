@@ -203,7 +203,6 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     ambientLightManager = new AmbientLightManager(this);
 
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-    HYControl.$QRCodeType = true;
 
     // 竖屏
     if ( HYControl.$Direction )
@@ -462,6 +461,17 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
     flashLightMenu = menu.findItem(R.id.qrcode_btn_flash_light);
     qrCodeType     = menu.findItem(R.id.qrcode_btn_type);
+
+    if (HYControl.$QRCodeType)
+    {
+      qrCodeType.setIcon(R.drawable.ic_qrcode_2d_24dp);
+      statusView.setText(R.string.msg_qrcode_type_2d_status);
+    }
+    else
+    {
+      qrCodeType.setIcon(R.drawable.ic_qrcode_1d_24dp);
+      statusView.setText(R.string.msg_qrcode_type_1d_status);
+    }
 
     return super.onCreateOptionsMenu(menu);
   }

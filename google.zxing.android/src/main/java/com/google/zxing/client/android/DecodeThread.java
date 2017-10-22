@@ -78,10 +78,10 @@ final class DecodeThread extends Thread {
       if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_DATA_MATRIX, true) && HYControl.$QRCodeType ) {
         decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
       }
-      if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_AZTEC, true) && HYControl.$QRCodeType ) {
+      if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_AZTEC, false) ) {
         decodeFormats.addAll(DecodeFormatManager.AZTEC_FORMATS);
       }
-      if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_PDF417, true) && HYControl.$QRCodeType ) {
+      if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_PDF417, false) ) {
         decodeFormats.addAll(DecodeFormatManager.PDF417_FORMATS);
       }
     }
