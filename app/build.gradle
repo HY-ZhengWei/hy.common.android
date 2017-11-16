@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "org.hy.common.common"
         minSdkVersion 16
@@ -26,6 +26,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:26.+'
     testCompile 'junit:junit:4.12'
-    compile project(':hy.common.android')
-    compile project(':google.zxing.android')
+    implementation project(':hy.common.android')
+    implementation project(':google.zxing.android')
 }
