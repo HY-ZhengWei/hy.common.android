@@ -1,5 +1,6 @@
 package org.hy.common.android;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
@@ -7,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,6 +22,7 @@ import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
 
 import java.io.File;
+import java.util.Set;
 
 
 /**
@@ -35,6 +38,226 @@ public final class AHelp
     private AHelp()
     {
         // Nothing.
+    }
+
+
+
+    /**
+     * 获取应用ID。即build.gradle配置文件中applicationId值。
+     *
+     * @param i_Activity
+     * @return
+     */
+    public static String getApplicationId(Activity i_Activity)
+    {
+        return i_Activity.getApplication().getPackageName();
+    }
+
+
+
+    /**
+     * 获取本地私有数据保存对象
+     *
+     * @param i_Activity
+     * @return
+     */
+    public static SharedPreferences getPreferences(Activity i_Activity)
+    {
+        return i_Activity.getSharedPreferences(getApplicationId(i_Activity) ,Context.MODE_PRIVATE);
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,String i_Value)
+    {
+        SharedPreferences.Editor v_Editor = getPreferences(i_Activity).edit();
+        v_Editor.putString(i_Key ,i_Value);
+        v_Editor.commit();
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,int i_Value)
+    {
+        SharedPreferences.Editor v_Editor = getPreferences(i_Activity).edit();
+        v_Editor.putInt(i_Key ,i_Value);
+        v_Editor.commit();
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,float i_Value)
+    {
+        SharedPreferences.Editor v_Editor = getPreferences(i_Activity).edit();
+        v_Editor.putFloat(i_Key ,i_Value);
+        v_Editor.commit();
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,long i_Value)
+    {
+        SharedPreferences.Editor v_Editor = getPreferences(i_Activity).edit();
+        v_Editor.putLong(i_Key ,i_Value);
+        v_Editor.commit();
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,boolean i_Value)
+    {
+        SharedPreferences.Editor v_Editor = getPreferences(i_Activity).edit();
+        v_Editor.putBoolean(i_Key ,i_Value);
+        v_Editor.commit();
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,Set<String> i_Value)
+    {
+        SharedPreferences.Editor v_Editor = getPreferences(i_Activity).edit();
+        v_Editor.putStringSet(i_Key ,i_Value);
+        v_Editor.commit();
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @return
+     */
+    public static String getPreferences(Activity i_Activity ,String i_Key)
+    {
+        return getPreferences(i_Activity ,i_Key ,"");
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @return
+     */
+    public static String getPreferences(Activity i_Activity ,String i_Key ,String i_DefValue)
+    {
+        return getPreferences(i_Activity).getString(i_Key ,i_DefValue);
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @return
+     */
+    public static int getPreferences(Activity i_Activity ,String i_Key ,int i_DefValue)
+    {
+        return getPreferences(i_Activity).getInt(i_Key ,i_DefValue);
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @return
+     */
+    public static float getPreferences(Activity i_Activity ,String i_Key ,float i_DefValue)
+    {
+        return getPreferences(i_Activity).getFloat(i_Key ,i_DefValue);
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @return
+     */
+    public static long getPreferences(Activity i_Activity ,String i_Key ,long i_DefValue)
+    {
+        return getPreferences(i_Activity).getLong(i_Key ,i_DefValue);
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @return
+     */
+    public static boolean getPreferences(Activity i_Activity ,String i_Key ,boolean i_DefValue)
+    {
+        return getPreferences(i_Activity).getBoolean(i_Key ,i_DefValue);
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @return
+     */
+    public static Set<String> getPreferences(Activity i_Activity ,String i_Key ,Set<String> i_DefValue)
+    {
+        return getPreferences(i_Activity).getStringSet(i_Key ,i_DefValue);
     }
 
 
@@ -393,6 +616,7 @@ public final class AHelp
      * 4、最后1位数（SP)通常是"0"，为检验码，备用。
      * IMEI码具有唯一性，贴在手机背面的标志上，并且读写于手机内存中。它也是该手机在厂家的"档案"和"身份证号"。
      */
+    @SuppressLint("MissingPermission")
     public static String getIMEI(Activity i_Activity)
     {
         TelephonyManager v_TelephoneMgr = (TelephonyManager)i_Activity.getSystemService(Context.TELEPHONY_SERVICE);
