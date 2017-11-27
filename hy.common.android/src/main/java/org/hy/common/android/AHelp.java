@@ -21,6 +21,10 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
 
+import org.hy.common.Date;
+import org.hy.common.Help;
+import org.hy.common.xml.XJSON;
+
 import java.io.File;
 import java.util.Set;
 
@@ -31,6 +35,7 @@ import java.util.Set;
  * @author  ZhengWei(HY)
  * @version 2013-11-15
  *          2016-01-15  建立独立项目，通用化此类
+ *          2017-11-27  添加：通过SharedPreferences保存、读取对象的方法。
  */
 public final class AHelp
 {
@@ -64,6 +69,53 @@ public final class AHelp
     public static SharedPreferences getPreferences(Activity i_Activity)
     {
         return i_Activity.getSharedPreferences(getApplicationId(i_Activity) ,Context.MODE_PRIVATE);
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,Object i_Value) throws Exception
+    {
+        XJSON v_XJson = new XJSON();
+
+        v_XJson.setAccuracy(true);
+        v_XJson.setReturnNVL(false);
+
+        putPreferences(i_Activity ,i_Key ,v_XJson.parser(i_Value).toJSONString());
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,Date i_Value)
+    {
+        putPreferences(i_Activity ,i_Key ,i_Value.getTime());
+    }
+
+
+
+    /**
+     * 在本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_Value     数据本身
+     */
+    public static void putPreferences(Activity i_Activity ,String i_Key ,java.util.Date i_Value)
+    {
+        putPreferences(i_Activity ,i_Key ,i_Value.getTime());
     }
 
 
@@ -183,6 +235,94 @@ public final class AHelp
      *
      * @param i_Activity
      * @param i_Key       数据标记
+     * @param i_DefValue  默认值
+     * @return
+     */
+    public static <T> T getPreferences(Activity i_Activity ,String i_Key ,T i_DefValue) throws Exception
+    {
+        String v_Json = getPreferences(i_Activity ,i_Key);
+
+        if ( Help.isNull(v_Json) )
+        {
+            return i_DefValue;
+        }
+
+        XJSON v_XJson = new XJSON();
+
+        v_XJson.setAccuracy(true);
+        v_XJson.setReturnNVL(false);
+
+        return (T)v_XJson.parser(v_Json ,i_DefValue.getClass());
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_DefValue  默认值
+     * @return
+     */
+    public static Date getPreferences(Activity i_Activity ,String i_Key ,Date i_DefValue)
+    {
+        long v_Time = -1L;
+        if ( i_DefValue == null )
+        {
+            v_Time = getPreferences(i_Activity, i_Key, v_Time);
+
+            if ( v_Time == -1L )
+            {
+                return null;
+            }
+        }
+        else
+        {
+            v_Time = getPreferences(i_Activity, i_Key, i_DefValue.getTime());
+        }
+
+        return new Date(v_Time);
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_DefValue  默认值
+     * @return
+     */
+    public static java.util.Date getPreferences(Activity i_Activity ,String i_Key ,java.util.Date i_DefValue)
+    {
+        long v_Time = -1L;
+        if ( i_DefValue == null )
+        {
+            v_Time = getPreferences(i_Activity, i_Key, v_Time);
+
+            if ( v_Time == -1L )
+            {
+                return null;
+            }
+        }
+        else
+        {
+            v_Time = getPreferences(i_Activity, i_Key, i_DefValue.getTime());
+        }
+
+        return new java.util.Date(v_Time);
+    }
+
+
+
+    /**
+     * 获取本地存储的私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     * @param i_DefValue  默认值
      * @return
      */
     public static String getPreferences(Activity i_Activity ,String i_Key ,String i_DefValue)
@@ -197,6 +337,7 @@ public final class AHelp
      *
      * @param i_Activity
      * @param i_Key       数据标记
+     * @param i_DefValue  默认值
      * @return
      */
     public static int getPreferences(Activity i_Activity ,String i_Key ,int i_DefValue)
@@ -211,6 +352,7 @@ public final class AHelp
      *
      * @param i_Activity
      * @param i_Key       数据标记
+     * @param i_DefValue  默认值
      * @return
      */
     public static float getPreferences(Activity i_Activity ,String i_Key ,float i_DefValue)
@@ -225,6 +367,7 @@ public final class AHelp
      *
      * @param i_Activity
      * @param i_Key       数据标记
+     * @param i_DefValue  默认值
      * @return
      */
     public static long getPreferences(Activity i_Activity ,String i_Key ,long i_DefValue)
@@ -239,6 +382,7 @@ public final class AHelp
      *
      * @param i_Activity
      * @param i_Key       数据标记
+     * @param i_DefValue  默认值
      * @return
      */
     public static boolean getPreferences(Activity i_Activity ,String i_Key ,boolean i_DefValue)
@@ -253,6 +397,7 @@ public final class AHelp
      *
      * @param i_Activity
      * @param i_Key       数据标记
+     * @param i_DefValue  默认值
      * @return
      */
     public static Set<String> getPreferences(Activity i_Activity ,String i_Key ,Set<String> i_DefValue)

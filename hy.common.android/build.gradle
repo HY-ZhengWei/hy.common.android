@@ -29,5 +29,11 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:design:26.+'
     testCompile 'junit:junit:4.12'
+    compile files('libs/asm-1.0-RC3.jar')
+    compile files('libs/asm-3.3.1.jar')
+    compile files('libs/json-smart-2.0-RC3.jar')
     compile files('libs/hy.common.base.jar')
+    compile files('libs/hy.common.db.jar')
+    compile files('libs/hy.common.file.jar')
+    compile files('libs/xjava.jar')
 }
