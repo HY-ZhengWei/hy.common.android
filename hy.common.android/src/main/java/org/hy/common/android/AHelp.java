@@ -238,7 +238,7 @@ public final class AHelp
      * @param i_DefValue  默认值
      * @return
      */
-    public static <T> T getPreferences(Activity i_Activity ,String i_Key ,T i_DefValue) throws Exception
+    public static <T> T getPreferences(Activity i_Activity ,String i_Key ,T i_DefValue)
     {
         String v_Json = getPreferences(i_Activity ,i_Key);
 
@@ -252,7 +252,14 @@ public final class AHelp
         v_XJson.setAccuracy(true);
         v_XJson.setReturnNVL(false);
 
-        return (T)v_XJson.parser(v_Json ,i_DefValue.getClass());
+        try
+        {
+            return (T) v_XJson.parser(v_Json, i_DefValue.getClass());
+        }
+        catch (Exception exce)
+        {
+            return i_DefValue;
+        }
     }
 
 
