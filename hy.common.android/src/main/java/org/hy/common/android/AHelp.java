@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
 
@@ -80,7 +81,7 @@ public final class AHelp
      * @param i_Key       数据标记
      * @param i_Value     数据本身
      */
-    public static void putPreferences(Activity i_Activity ,String i_Key ,Object i_Value) throws Exception
+    public static void putPreferences(Activity i_Activity ,String i_Key ,@NonNull Object i_Value) throws Exception
     {
         XJSON v_XJson = new XJSON();
 
@@ -99,7 +100,7 @@ public final class AHelp
      * @param i_Key       数据标记
      * @param i_Value     数据本身
      */
-    public static void putPreferences(Activity i_Activity ,String i_Key ,Date i_Value)
+    public static void putPreferences(Activity i_Activity ,String i_Key ,@NonNull Date i_Value)
     {
         putPreferences(i_Activity ,i_Key ,i_Value.getTime());
     }
@@ -113,7 +114,7 @@ public final class AHelp
      * @param i_Key       数据标记
      * @param i_Value     数据本身
      */
-    public static void putPreferences(Activity i_Activity ,String i_Key ,java.util.Date i_Value)
+    public static void putPreferences(Activity i_Activity ,String i_Key ,@NonNull java.util.Date i_Value)
     {
         putPreferences(i_Activity ,i_Key ,i_Value.getTime());
     }
@@ -238,7 +239,7 @@ public final class AHelp
      * @param i_DefValue  默认值
      * @return
      */
-    public static <T> T getPreferences(Activity i_Activity ,String i_Key ,T i_DefValue)
+    public static <T> T getPreferences(Activity i_Activity ,String i_Key ,@NonNull T i_DefValue)
     {
         String v_Json = getPreferences(i_Activity ,i_Key);
 

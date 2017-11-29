@@ -2,6 +2,7 @@ package org.hy.common.android.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.http.SslError;
 import android.os.Build;
@@ -22,6 +23,7 @@ import org.hy.common.CycleList;
 import org.hy.common.Help;
 import org.hy.common.StringHelp;
 import org.hy.common.android.R;
+import org.hy.common.android.ui.events.MyWebClientListening;
 
 
 /**
@@ -33,11 +35,48 @@ public class MyWebClient extends WebView
 {
 
     /** 当前服务 */
-    private String            currentServer;
+    private String               currentServer;
 
-    private CycleList<String> servers;
+    private CycleList<String>    servers;
 
-    private ProgressBar       progressbar;
+    private ProgressBar          progressbar;
+
+    /** 浏览器的改变事件监听器 */
+    private MyWebClientListening listening;
+
+
+
+    private void fireOnFinishedListening()
+    {
+        if ( this.listening != null )
+        {
+            this.listening.onFinished(this);
+        }
+    }
+
+
+
+    @Override
+    public void loadUrl(String url)
+    {
+        super.loadUrl(url);
+    }
+
+
+
+    @Override
+    public void goBack()
+    {
+        super.goBack();
+    }
+
+
+
+    @Override
+    public boolean canGoBack()
+    {
+        return super.canGoBack();
+    }
 
 
 
@@ -102,6 +141,29 @@ public class MyWebClient extends WebView
 
         this.setWebViewClient(new WebViewClient()
         {
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon)
+            {
+                super.onPageStarted(view, url, favicon);
+            }
+
+
+            @Override
+            public void onPageFinished(WebView view, String url)
+            {
+                super.onPageFinished(view, url);
+            }
+
+
+            @Override
+            public void onLoadResource(WebView view, String url)
+            {
+                // 可在此添加拦截功能
+                super.onLoadResource(view, url);
+            }
+
+
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 super.onReceivedError(view, errorCode, description, failingUrl);
@@ -143,6 +205,7 @@ public class MyWebClient extends WebView
                 if (newProgress == 100)
                 {
                     progressbar.setVisibility(GONE);
+                    fireOnFinishedListening();
                 }
                 else
                 {
@@ -217,6 +280,20 @@ public class MyWebClient extends WebView
         currentServer = servers.next();
         i_View.stopLoading();
         i_View.loadUrl("");
+    }
+
+
+
+    public MyWebClientListening getMyWebClientListening()
+    {
+        return listening;
+    }
+
+
+
+    public void setMyWebClientListening(MyWebClientListening listening)
+    {
+        this.listening = listening;
     }
 
 }
