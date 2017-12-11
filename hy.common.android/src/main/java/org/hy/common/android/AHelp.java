@@ -218,6 +218,21 @@ public final class AHelp
 
 
     /**
+     * 删除本地存储私有数据
+     *
+     * @param i_Activity
+     * @param i_Key       数据标记
+     */
+    public static void removePreferences(Activity i_Activity ,String i_Key)
+    {
+        SharedPreferences.Editor v_Editor = getPreferences(i_Activity).edit();
+        v_Editor.remove(i_Key);
+        v_Editor.commit();
+    }
+
+
+
+    /**
      * 获取本地存储的私有数据
      *
      * @param i_Activity
