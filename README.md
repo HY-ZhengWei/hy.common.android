@@ -32,8 +32,6 @@
     3. 在build.gradle中的节点添加编译的aar包
 ```
     dependencies {
-        implementation fileTree(dir: 'libs', include: ['*.jar' ,'*.aar'])
-        
         # Grandle 4.0以上的版本用如下引用
         implementation(name: 'hy.common.android', ext: 'aar')
         implementation(name: 'google.zxing.android', ext: 'aar')
