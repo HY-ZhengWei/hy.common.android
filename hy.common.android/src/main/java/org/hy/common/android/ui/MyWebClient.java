@@ -167,20 +167,38 @@ public class MyWebClient extends WebView
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 super.onReceivedError(view, errorCode, description, failingUrl);
-                webViewError(view);
+
+                String v_Url = "";
+                if ( failingUrl != null )
+                {
+                    v_Url = failingUrl;
+                }
+                webViewError(view ,v_Url);
             }
 
             //
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 super.onReceivedSslError(view, handler, error);
-                webViewError(view);
+
+                String v_Url = "";
+                if ( error != null && error.getUrl() != null )
+                {
+                    v_Url = error.getUrl();
+                }
+                webViewError(view ,v_Url);
             }
 
             @Override
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
                 super.onReceivedHttpError(view, request, errorResponse);
-                webViewError(view);
+
+                String v_Url = "";
+                if ( request != null && request.getUrl() != null && request.getUrl().toString() != null )
+                {
+                    v_Url = request.getUrl().toString();
+                }
+                webViewError(view ,v_Url);
             }
 
             /**
@@ -193,7 +211,13 @@ public class MyWebClient extends WebView
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
-                webViewError(view);
+
+                String v_Url = "";
+                if ( request != null && request.getUrl() != null && request.getUrl().toString() != null )
+                {
+                    v_Url = request.getUrl().toString();
+                }
+                webViewError(view ,v_Url);
             }
         });
 
@@ -226,7 +250,7 @@ public class MyWebClient extends WebView
                 // android 6.0 以下通过title获取
                 if (Help.isNull(title) || StringHelp.isContains(title.toLowerCase() ,"error" ,"400" ,"404", "500" ,"501" ,"502" ,"503" ,"504"))
                 {
-                    webViewError(view);
+                    webViewError(view ,title);
                 }
             }
 
@@ -238,8 +262,14 @@ public class MyWebClient extends WebView
         this.getSettings().setAllowFileAccess(true);             // 支持文件访问
         this.getSettings().setAllowFileAccessFromFileURLs(true); // 支持本地URL访问
         this.getSettings().setDomStorageEnabled(true);           // 是否支持持久化存储，保存到本地
-        this.getSettings().setAppCacheEnabled(false);
-        this.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        this.getSettings().setAppCacheEnabled(true);
+        this.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        this.getSettings().setAppCacheMaxSize(1024 * 1024 * 8);
+        this.getSettings().setUseWideViewPort(true);
+        this.getSettings().setLoadWithOverviewMode(true);
+        this.getSettings().setSupportZoom(true);
+        this.getSettings().setBuiltInZoomControls(false);
+        this.getSettings().setDomStorageEnabled(true);
 
         if ( !Help.isNull(servers) )
         {
@@ -275,11 +305,26 @@ public class MyWebClient extends WebView
 
 
 
-    private void webViewError(WebView i_View)
+    private void webViewError(WebView i_View ,String i_Url)
     {
-        currentServer = servers.next();
-        i_View.stopLoading();
-        i_View.loadUrl("");
+        if ( !Help.isNull(i_Url) && i_Url.indexOf("favicon.ico") >= 0 )
+        {
+            return;
+        }
+
+        boolean v_IsError = true;
+
+        if ( this.listening != null )
+        {
+            v_IsError = this.listening.webViewError(i_View ,i_Url);
+        }
+
+        if ( v_IsError )
+        {
+            currentServer = servers.next();
+            i_View.stopLoading();
+            i_View.loadUrl("");
+        }
     }
 
 

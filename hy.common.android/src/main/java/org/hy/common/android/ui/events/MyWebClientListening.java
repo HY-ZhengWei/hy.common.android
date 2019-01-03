@@ -1,5 +1,6 @@
 package org.hy.common.android.ui.events;
 
+import android.webkit.WebView;
 import org.hy.common.android.ui.MyWebClient;
 
 
@@ -11,6 +12,7 @@ import org.hy.common.android.ui.MyWebClient;
  *
  * @author  ZhengWei(HY)
  * @version 2017-11-29
+ *          2018-01-03  添加：当页面加载异常时触发
  */
 public interface MyWebClientListening
 {
@@ -21,5 +23,16 @@ public interface MyWebClientListening
      * @param i_MyWebClient
      */
     public void onFinished(MyWebClient i_MyWebClient);
+
+
+
+    /**
+     * 当页面加载异常时触发
+     *
+     * @param i_View
+     * @param i_Url
+     * @return       是否为异常
+     */
+    public boolean webViewError(WebView i_View ,String i_Url);
 
 }
