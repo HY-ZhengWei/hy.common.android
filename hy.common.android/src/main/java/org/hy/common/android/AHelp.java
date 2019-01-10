@@ -6,17 +6,23 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
@@ -27,6 +33,7 @@ import org.hy.common.Help;
 import org.hy.common.xml.XJSON;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 
@@ -37,6 +44,7 @@ import java.util.Set;
  * @version 2013-11-15
  *          2016-01-15  建立独立项目，通用化此类
  *          2017-11-27  添加：通过SharedPreferences保存、读取对象的方法。
+ *          2019-01-08  添加：android中调用系统拍照，返回图片是旋转90度的解决方法
  */
 public final class AHelp
 {
@@ -516,10 +524,11 @@ public final class AHelp
      *
      * @param i_Activity
      * @param i_ResultCode
+     * @param i_Fileprovider     应在AndroidManifest.xml中配置过的文件路径名称。如：tempfiles.fileprovider
      * @param i_ImageNamePrefix  图片名称的前缀
      * @return  返回拍照保存的文件，但要等拍照完成时读取才是有效的
      */
-    public static File photograph(Activity i_Activity ,int i_ResultCode ,String i_ImageNamePrefix)
+    public static File photograph(Activity i_Activity ,int i_ResultCode ,String i_Fileprovider ,String i_ImageNamePrefix)
     {
         Intent v_PhotoGraphIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -533,7 +542,7 @@ public final class AHelp
                 {
                     // v_PhotoGraphIntent.putExtra(MediaStore.EXTRA_OUTPUT ,Uri.fromFile(v_PhotoFile));
 
-                    Uri v_PhotoURI = FileProvider.getUriForFile(i_Activity ,"tempfiles.fileprovider" ,v_PhotoFile);
+                    Uri v_PhotoURI = FileProvider.getUriForFile(i_Activity ,i_Fileprovider ,v_PhotoFile);
                     v_PhotoGraphIntent.putExtra(MediaStore.EXTRA_OUTPUT ,v_PhotoURI);
                     v_PhotoGraphIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // 这里加入flag
 
@@ -549,6 +558,93 @@ public final class AHelp
         }
 
         return null;
+    }
+
+
+
+    /**
+     * 获取图片的旋转角度
+     *
+     * @param i_Image 图片绝对路径
+     * @return 图片的旋转角度
+     */
+    public static int getBitmapDegree(String i_Image)
+    {
+        int degree = 0;
+
+        try
+        {
+            // 从指定路径下读取图片，并获取其EXIF信息
+            ExifInterface exifInterface = new ExifInterface(i_Image);
+            // 获取图片的旋转信息
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation)
+            {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return degree;
+
+    }
+
+
+
+    /**
+     * 将图片按照指定的角度进行旋转
+     *
+     * @param bitmap 需要旋转的图片
+     * @param degree 指定的旋转角度
+     * @return 旋转后的图片
+     */
+    public static Bitmap rotateBitmapByDegree(Bitmap i_Bitmap, int i_Degree)
+    {
+        // 根据旋转角度，生成旋转矩阵
+        Matrix matrix = new Matrix();
+        matrix.postRotate(i_Degree);
+        // 将原始图片按照旋转矩阵进行旋转，并得到新的图片
+        Bitmap newBitmap = Bitmap.createBitmap(i_Bitmap, 0, 0, i_Bitmap.getWidth(), i_Bitmap.getHeight(), matrix, true);
+
+        if (i_Bitmap != null && !i_Bitmap.isRecycled())
+        {
+            i_Bitmap.recycle();
+        }
+        return newBitmap;
+    }
+
+
+
+    /**
+     * android中调用系统拍照，返回图片是旋转90度的解决方法
+     *
+     * @param i_Image 图片绝对路径
+     * @return
+     */
+    public static Bitmap createBitmap(String i_Image)
+    {
+        Bitmap v_Bitmap = BitmapFactory.decodeFile(i_Image);
+        int    v_Degree = getBitmapDegree(i_Image);
+
+        if ( v_Degree == 0 )
+        {
+            return v_Bitmap;
+        }
+        else
+        {
+            return rotateBitmapByDegree(v_Bitmap, v_Degree);
+        }
     }
 
 
@@ -595,6 +691,108 @@ public final class AHelp
         }
 
         return v_ImageFile;
+    }
+
+
+
+    /**
+     * 将Uri转成真实的文件路径
+     *
+     * @param context
+     * @param uri
+     * @return
+     */
+    public static String getFilePathByUri(Context context, Uri uri)
+    {
+        String path = null;
+        // 以 file:// 开头的
+        if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
+            path = uri.getPath();
+            return path;
+        }
+        // 以 content:// 开头的，比如 content://media/extenral/images/media/17766
+        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme()) && Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    if (columnIndex > -1) {
+                        path = cursor.getString(columnIndex);
+                    }
+                }
+                cursor.close();
+            }
+            return path;
+        }
+        // 4.4及之后的 是以 content:// 开头的，比如 content://com.android.providers.media.documents/document/image%3A235700
+        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme()) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                if (isExternalStorageDocument(uri)) {
+                    // ExternalStorageProvider
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+                    if ("primary".equalsIgnoreCase(type)) {
+                        path = Environment.getExternalStorageDirectory() + "/" + split[1];
+                        return path;
+                    }
+                } else if (isDownloadsDocument(uri)) {
+                    // DownloadsProvider
+                    final String id = DocumentsContract.getDocumentId(uri);
+                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
+                            Long.valueOf(id));
+                    path = getDataColumn(context, contentUri, null, null);
+                    return path;
+                } else if (isMediaDocument(uri)) {
+                    // MediaProvider
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
+                    Uri contentUri = null;
+                    if ("image".equals(type)) {
+                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("video".equals(type)) {
+                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("audio".equals(type)) {
+                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                    }
+                    final String selection = "_id=?";
+                    final String[] selectionArgs = new String[]{split[1]};
+                    path = getDataColumn(context, contentUri, selection, selectionArgs);
+                    return path;
+                }
+            }
+        }
+        return null;
+    }
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs)
+    {
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {column};
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int column_index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+    private static boolean isExternalStorageDocument(Uri uri)
+    {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+    private static boolean isDownloadsDocument(Uri uri)
+    {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+    private static boolean isMediaDocument(Uri uri)
+    {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
 

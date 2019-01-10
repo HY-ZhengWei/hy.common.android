@@ -25,6 +25,8 @@ import org.hy.common.StringHelp;
 import org.hy.common.android.R;
 import org.hy.common.android.ui.events.MyWebClientListening;
 
+import java.io.IOException;
+
 
 /**
  * 自定义浏览器
@@ -163,6 +165,23 @@ public class MyWebClient extends WebView
                 super.onLoadResource(view, url);
             }
 
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView i_View, String i_URL)
+            {
+                WebResourceResponse v_Response = null;
+
+                if ( listening != null )
+                {
+                    v_Response = listening.shouldInterceptRequest(i_URL);
+                }
+
+                if ( v_Response == null )
+                {
+                    v_Response = super.shouldInterceptRequest(i_View, i_URL);
+                }
+
+                return v_Response;
+            }
 
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
