@@ -19,6 +19,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -33,6 +34,8 @@ import org.hy.common.Help;
 import org.hy.common.xml.XJSON;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 
@@ -45,6 +48,9 @@ import java.util.Set;
  *          2016-01-15  建立独立项目，通用化此类
  *          2017-11-27  添加：通过SharedPreferences保存、读取对象的方法。
  *          2019-01-08  添加：android中调用系统拍照，返回图片是旋转90度的解决方法
+ *          2019-01-11  添加：保存图片saveImage()
+ *                      添加：缩放图片（限制最大宽度或最大高度）
+ *                      添加：获取图片的尺寸（宽和高）。仅做解码处理，不加载到内存
  */
 public final class AHelp
 {
@@ -645,6 +651,192 @@ public final class AHelp
         {
             return rotateBitmapByDegree(v_Bitmap, v_Degree);
         }
+    }
+
+
+
+    /**
+     * 保存图片
+     *
+     * @author      ZhengWei(HY)
+     * @createDate  2019-01-11
+     * @version     v1.0
+     *
+     * @param i_Image       图片数据
+     * @param i_SaveImage   保存图片的全路径
+     * @return
+     */
+    public static void saveImage(Bitmap i_Image ,String i_SaveImage) throws FileNotFoundException
+    {
+        FileOutputStream v_Out = null;
+
+        try
+        {
+            v_Out = new FileOutputStream(new File(i_SaveImage));
+            i_Image.compress(Bitmap.CompressFormat.JPEG, 100, v_Out);
+        }
+        catch (IOException exce)
+        {
+            throw exce;
+        }
+        finally
+        {
+            try
+            {
+                if ( v_Out != null )
+                {
+                    v_Out.flush();
+                    v_Out.close();
+                }
+            }
+            catch (Exception exce)
+            {
+                exce.printStackTrace();
+            }
+        }
+    }
+
+
+
+    /**
+     * 缩放图片（限制最大宽度或最大高度）
+     *
+     * @author      ZhengWei(HY)
+     * @createDate  2019-01-11
+     * @version     v1.0
+     *
+     * @param i_Image
+     * @param i_MaxWidth   最大宽度（小于0，表示不限制）
+     * @param i_MaxHeight  最大高度（小于0，表示不限制）
+     * @param i_IsScale    当图片被缩小时，是否保持高宽等比缩放
+     * @return
+     */
+    public static Bitmap resizeImageByMax(String i_Image ,boolean i_IsScale ,int i_MaxWidth ,int i_MaxHeight)
+    {
+        if ( i_MaxWidth <= 0 && i_MaxHeight <= 0 )
+        {
+            return BitmapFactory.decodeFile(i_Image);
+        }
+
+        int []  v_Sizes     = getImageSize(i_Image);
+        int     v_NewWidth  = v_Sizes[0];
+        int     v_NewHeight = v_Sizes[1];
+        boolean v_IsResize  = false;
+
+        // 计算高宽等比缩放的情况
+        if ( i_IsScale )
+        {
+            double v_WidthZoomRate  = 1;
+            double v_HeightZoomRate = 1;
+
+            if ( i_MaxWidth > 0 && v_NewWidth > i_MaxWidth )
+            {
+                v_WidthZoomRate = Help.division(i_MaxWidth ,v_NewWidth);
+                v_IsResize      = true;
+            }
+
+            if ( i_MaxHeight > 0 && v_NewHeight > i_MaxHeight )
+            {
+                v_HeightZoomRate = Help.division(i_MaxHeight ,v_NewHeight);
+                v_IsResize       = true;
+            }
+
+            if ( v_IsResize )
+            {
+                double v_ZoomRate = Help.min(v_WidthZoomRate ,v_HeightZoomRate);
+                v_NewWidth  = (int)Math.floor(Help.multiply(v_NewWidth  ,v_ZoomRate));
+                v_NewHeight = (int)Math.floor(Help.multiply(v_NewHeight ,v_ZoomRate));
+            }
+        }
+        // 计算非等比缩放的情况
+        else
+        {
+            if ( i_MaxWidth > 0 && v_NewWidth > i_MaxWidth )
+            {
+                v_NewWidth = i_MaxWidth;
+                v_IsResize = true;
+            }
+
+            if ( i_MaxHeight > 0 && v_NewHeight > i_MaxHeight )
+            {
+                v_NewHeight = i_MaxHeight;
+                v_IsResize  = true;
+            }
+        }
+
+        if ( v_IsResize )
+        {
+            return resizeImage(i_Image ,v_NewWidth ,v_NewHeight);
+        }
+        else
+        {
+            return BitmapFactory.decodeFile(i_Image);
+        }
+    }
+
+
+
+    /**
+     * 缩放图片
+     *
+     * @author      ZhengWei(HY)
+     * @createDate  2019-01-11
+     * @version     v1.0
+     *
+     * @param i_Image
+     * @param i_NewWidth   新的宽度
+     * @param i_NewHeight  新的高度
+     * @return
+     */
+    public static Bitmap resizeImage(String i_Image ,int i_NewWidth ,int i_NewHeight)
+    {
+        return ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(i_Image) ,i_NewWidth ,i_NewHeight);
+    }
+
+
+
+    /**
+     * 缩放图片
+     *
+     * @author      ZhengWei(HY)
+     * @createDate  2019-01-11
+     * @version     v1.0
+     *
+     * @param i_Image
+     * @param i_NewWidth   新的宽度
+     * @param i_NewHeight  新的高度
+     * @return
+     */
+    public static Bitmap resizeImage(Bitmap i_Image ,int i_NewWidth ,int i_NewHeight)
+    {
+        return ThumbnailUtils.extractThumbnail(i_Image ,i_NewWidth ,i_NewHeight);
+    }
+
+
+
+    /**
+     * 获取图片的尺寸（宽和高）
+     *
+     * 仅做解码处理，不加载到内存
+     *
+     * @author      ZhengWei(HY)
+     * @createDate  2019-01-11
+     * @version     v1.0
+     *
+     * @param i_Image
+     * @return [0] 表示宽度
+     *         [1] 表示高度
+     */
+    public static int [] getImageSize(String i_Image)
+    {
+        // 获取Options对象
+        BitmapFactory.Options v_Options = new BitmapFactory.Options();
+        // 仅做解码处理，不加载到内存
+        v_Options.inJustDecodeBounds = true;
+        // 解析文件
+        BitmapFactory.decodeFile(i_Image, v_Options);
+
+        return new int[]{v_Options.outWidth ,v_Options.outHeight};
     }
 
 
