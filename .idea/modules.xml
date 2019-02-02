@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Common.iml" filepath="$PROJECT_DIR$/Common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/google.zxing.android/google.zxing.android.iml" filepath="$PROJECT_DIR$/google.zxing.android/google.zxing.android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hy.common.android/hy.common.android.iml" filepath="$PROJECT_DIR$/hy.common.android/hy.common.android.iml" />
     </modules>
   </component>
 </project>

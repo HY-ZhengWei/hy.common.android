@@ -1,5 +1,6 @@
 package org.hy.common.android;
 
+import android.annotation.SuppressLint;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
@@ -13,6 +14,7 @@ import java.lang.reflect.Field;
 public class BottomNavigationViewHelper
 {
 
+    @SuppressLint("RestrictedApi")
     public static void disableShiftMode(BottomNavigationView view)
     {
         //获取子View BottomNavigationMenuView的对象
@@ -20,15 +22,20 @@ public class BottomNavigationViewHelper
         try
         {
             //设置私有成员变量mShiftingMode可以修改
-            Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
+            // 2019-02-02  老版本的是：menuView.getClass().getDeclaredField("mShiftingMode");
+            Field shiftingMode = menuView.getClass().getDeclaredField("labelVisibilityMode");
             shiftingMode.setAccessible(true);
-            shiftingMode.setBoolean(menuView, false);
+            // 2019-02-02  老版本的是：shiftingMode.setBoolean(menuView, false);
+            shiftingMode.setInt(menuView, 1);
             shiftingMode.setAccessible(false);
             for (int i = 0; i < menuView.getChildCount(); i++)
             {
                 BottomNavigationItemView v_Item = (BottomNavigationItemView) menuView.getChildAt(i);
+
                 // 去除shift效果
-                v_Item.setShiftingMode(false);
+                // 2019-02-02  老版本是：v_Item.setShiftingMode(false);
+                v_Item.setShifting(false);
+
                 v_Item.setChecked(v_Item.getItemData().isChecked());
             }
         } catch (NoSuchFieldException e)
