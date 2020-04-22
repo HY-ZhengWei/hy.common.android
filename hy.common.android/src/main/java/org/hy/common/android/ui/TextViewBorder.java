@@ -10,6 +10,8 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatTextView;
+
 import org.hy.common.android.R;
 
 /**
@@ -18,7 +20,7 @@ import org.hy.common.android.R;
  *
  * Created by ZhengWei(HY) on 2017/9/8.
  */
-public class TextViewBorder extends android.support.v7.widget.AppCompatTextView
+public class TextViewBorder extends AppCompatTextView
 {
     /** 描边的TextView */
     private TextView borderTextView;

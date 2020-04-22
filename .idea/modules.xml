@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Common.iml" filepath="$PROJECT_DIR$/Common.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/google.zxing.android/google.zxing.android.iml" filepath="$PROJECT_DIR$/google.zxing.android/google.zxing.android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/hy.common.android/hy.common.android.iml" filepath="$PROJECT_DIR$/hy.common.android/hy.common.android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Common.iml" filepath="$PROJECT_DIR$/Common.iml" group="Common" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Common/app" />
+      <module fileurl="file://$PROJECT_DIR$/google.zxing.android/google.zxing.android.iml" filepath="$PROJECT_DIR$/google.zxing.android/google.zxing.android.iml" group="Common/google.zxing.android" />
+      <module fileurl="file://$PROJECT_DIR$/hy.common.android/hy.common.android.iml" filepath="$PROJECT_DIR$/hy.common.android/hy.common.android.iml" group="Common/hy.common.android" />
     </modules>
   </component>
 </project>

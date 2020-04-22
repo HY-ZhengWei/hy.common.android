@@ -25,9 +25,11 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 
 import org.hy.common.Date;
 import org.hy.common.Help;
@@ -37,6 +39,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -450,7 +453,7 @@ public final class AHelp
      * @param i_Activity
      * @param i_Text
      */
-    public static void copyText(Activity i_Activity ,String i_Text)
+    public static void copyText(Activity i_Activity , String i_Text)
     {
         ClipboardManager cm = (ClipboardManager) i_Activity.getSystemService(Context.CLIPBOARD_SERVICE);
         // 创建普通字符型ClipData
@@ -611,8 +614,8 @@ public final class AHelp
     /**
      * 将图片按照指定的角度进行旋转
      *
-     * @param bitmap 需要旋转的图片
-     * @param degree 指定的旋转角度
+     * @param i_Bitmap 需要旋转的图片
+     * @param i_Degree 指定的旋转角度
      * @return 旋转后的图片
      */
     public static Bitmap rotateBitmapByDegree(Bitmap i_Bitmap, int i_Degree)
@@ -1173,21 +1176,23 @@ public final class AHelp
      * 3、之后的6位数（SNR)是"串号"，一般代表生产顺序号。
      * 4、最后1位数（SP)通常是"0"，为检验码，备用。
      * IMEI码具有唯一性，贴在手机背面的标志上，并且读写于手机内存中。它也是该手机在厂家的"档案"和"身份证号"。
+     *
+     * Android 10 获取不了IMEI解决 2020-04-07 用 android id代替
      */
     @SuppressLint("MissingPermission")
     public static String getIMEI(Activity i_Activity)
     {
         TelephonyManager v_TelephoneMgr = (TelephonyManager)i_Activity.getSystemService(Context.TELEPHONY_SERVICE);
-
+        String           v_ID           = "";
         try
         {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             {
-                return v_TelephoneMgr.getImei();
+                v_ID = v_TelephoneMgr.getImei();
             }
             else
             {
-                return v_TelephoneMgr.getDeviceId();
+                v_ID = v_TelephoneMgr.getDeviceId();
             }
         }
         catch (Exception exce)
@@ -1195,7 +1200,12 @@ public final class AHelp
             exce.printStackTrace();
         }
 
-        return "";
+        if ( Help.isNull(v_ID) )
+        {
+            v_ID = Settings.System.getString(i_Activity.getContentResolver(), Settings.Secure.ANDROID_ID);
+        }
+
+        return v_ID;
     }
 
 }

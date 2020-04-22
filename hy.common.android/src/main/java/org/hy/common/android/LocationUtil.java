@@ -1,5 +1,6 @@
 package org.hy.common.android;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -7,6 +8,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -17,6 +19,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +30,7 @@ import java.util.List;
  * Android API本身提供的定位功能,也是GPS定位。
  * GPS定位，是基于卫星定位。它受环境影响很大。并且是单向定位，也就是只有你自己知道你的地理坐标。
  *
- * @author  ZhengWei(HY)
+ * @author ZhengWei(HY)
  */
 @TargetApi(Build.VERSION_CODES.CUPCAKE)
 @SuppressLint("NewApi")
@@ -37,24 +41,49 @@ public class LocationUtil
 
     private static LocationUtil instance;
 
-    private static Activity         mActivity;
+    private Activity         activity;
 
-    private static LocationManager  locationManager;
+    private LocationManager  locationManager;
 
-    private static LocationListener locationListener;
+    private LocationListener locationListener;
 
 
 
-    public static LocationUtil getInstance(Activity activity)
+    public static synchronized LocationUtil getInstance(Activity i_Activity)
     {
-        mActivity = activity;
-        if ( instance==null )
+        if ( i_Activity == null )
         {
-            instance = new LocationUtil();
+            return null;
         }
 
-        locationManager = (LocationManager)mActivity.getSystemService(Context.LOCATION_SERVICE);
+        if ( instance != null)
+        {
+            return instance;
+        }
+
+        instance                 = new LocationUtil();
+        instance.activity        = i_Activity;
+        instance.locationManager = (LocationManager) instance.activity.getSystemService(Context.LOCATION_SERVICE);
         return instance;
+    }
+
+
+
+    public static LocationUtil getInstance()
+    {
+        return instance;
+    }
+
+
+
+    /**
+     * 判断GPS导航是否打开
+     *
+     * @return
+     */
+    public boolean isOpenGPS()
+    {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
 
@@ -65,21 +94,24 @@ public class LocationUtil
      * true:不做任何处理
      * @return
      */
-    public static void isOpenGPS(){
+    public void openGPS()
+    {
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
         {
-            AlertDialog.Builder dialog = new AlertDialog.Builder(mActivity);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this.activity);
             dialog.setMessage("GPS未打开，是否打开?");
+
             dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     // 设置完成后返回到原来的界面
-                    mActivity.startActivityForResult(intent, 0);
+                    activity.startActivityForResult(intent, 0);
                 }
             });
+
             dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
                 @Override
@@ -94,24 +126,53 @@ public class LocationUtil
 
 
     /**
-     * 通过LocationListener来获取Location信息
+     * 开启GPS定位监听器来获取Location信息
+     *
+     * @param i_MinTime       位置信息更新周期.单位是毫秒
+     * @param i_MinDistance   位置变化最小距离：当位置距离变化超过此值时，将更新位置信息
      */
-    public static void formListenerGetLocation()
+    public void startListenerByGPS(long i_MinTime ,long i_MinDistance)
     {
+        this.startListener(LocationManager.GPS_PROVIDER ,i_MinTime ,i_MinDistance);
+    }
 
+
+
+    /**
+     * 开启GPRS定位监听器来获取Location信息
+     *
+     * @param i_MinTime       位置信息更新周期.单位是毫秒
+     * @param i_MinDistance   位置变化最小距离：当位置距离变化超过此值时，将更新位置信息
+     */
+    public void startListenerByGPRS(long i_MinTime ,long i_MinDistance)
+    {
+        this.startListener(LocationManager.NETWORK_PROVIDER ,i_MinTime ,i_MinDistance);
+    }
+
+
+
+    /**
+     * 开启定位监听器来获取Location信息
+     *
+     * @param i_Provider      有GPS_PROVIDER和NETWORK_PROVIDER两种，前者是GPS,后者是GPRS以及WIFI定位
+     * @param i_MinTime       位置信息更新周期.单位是毫秒
+     * @param i_MinDistance   位置变化最小距离：当位置距离变化超过此值时，将更新位置信息
+     */
+    public void startListener(String i_Provider ,long i_MinTime ,long i_MinDistance)
+    {
         locationListener = new LocationListener() {
 
             @Override
             public void onLocationChanged(Location location) {
                 //位置信息变化时触发
-                Log.i(TAG, "纬度："+location.getLatitude());
-                Log.i(TAG, "经度："+location.getLongitude());
-                Log.i(TAG, "海拔："+location.getAltitude());
-                Log.i(TAG, "时间："+location.getTime());
+                Log.i(TAG, "纬度：" + location.getLatitude());
+                Log.i(TAG, "经度：" + location.getLongitude());
+                Log.i(TAG, "海拔：" + location.getAltitude());
+                Log.i(TAG, "时间：" + location.getTime());
             }
 
             @Override
-            public void onStatusChanged(String provider, int status,Bundle extras) {
+            public void onStatusChanged(String provider, int status, Bundle extras) {
                 //GPS状态变化时触发
             }
 
@@ -134,7 +195,12 @@ public class LocationUtil
          * 参数4，监听
          * 备注：参数2和3，如果参数3不为0，则以参数3为准；参数3为0，则通过时间来定时更新；两者为0，则随时刷新
          */
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        if ( ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED
+          && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
+        {
+            return;
+        }
+        locationManager.requestLocationUpdates(i_Provider, i_MinTime, i_MinDistance, locationListener);
     }
 
 
@@ -143,13 +209,22 @@ public class LocationUtil
      * 主动获取Location，通过以下方法获取到的是最后一次定位信息。
      * 注意：Location location=new Location(LocationManager.GPS_PROVIDER)方式获取的location的各个参数值都是为0。
      */
-    public static void getLocation()
+    public Location getLocation()
     {
-        Location location=locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Log.i(TAG, "纬度："+location.getLatitude());
-        Log.i(TAG, "经度："+location.getLongitude());
-        Log.i(TAG, "海拔："+location.getAltitude());
-        Log.i(TAG, "时间："+location.getTime());
+        if ( ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED
+          && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
+        {
+            return null;
+        }
+
+        Location v_Location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        /*
+        Log.i(TAG, "纬度："+v_Location.getLatitude());
+        Log.i(TAG, "经度："+v_Location.getLongitude());
+        Log.i(TAG, "海拔："+v_Location.getAltitude());
+        Log.i(TAG, "时间："+v_Location.getTime());
+        */
+        return v_Location;
     }
 
 
@@ -157,16 +232,31 @@ public class LocationUtil
     /**
      * 获取GPS状态监听，包括GPS启动、停止、第一次定位、卫星变化等事件。
      */
-    public static void getStatusListener()
+    public void getStatusListener()
     {
+        if ( ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED
+          && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
+        {
+            return;
+        }
 
-        GpsStatus.Listener listener = new GpsStatus.Listener(){
-
+        GpsStatus.Listener listener = new GpsStatus.Listener()
+        {
             @Override
-            public void onGpsStatusChanged(int event) {
-                if(event==GpsStatus.GPS_EVENT_FIRST_FIX){
+            public void onGpsStatusChanged(int event)
+            {
+                if ( ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED
+                  && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
+                {
+                    return;
+                }
+
+                if(event==GpsStatus.GPS_EVENT_FIRST_FIX)
+                {
                     //第一次定位
-                }else if(event==GpsStatus.GPS_EVENT_SATELLITE_STATUS){
+                }
+                else if(event==GpsStatus.GPS_EVENT_SATELLITE_STATUS)
+                {
                     //卫星状态改变
                     GpsStatus gpsStauts= locationManager.getGpsStatus(null); // 取当前状态
                     int maxSatellites = gpsStauts.getMaxSatellites(); //获取卫星颗数的默认最大值
@@ -177,9 +267,13 @@ public class LocationUtil
                         GpsSatellite s = it.next();
                     }
                     Log.i(TAG, "搜索到："+count+"颗卫星");
-                }else if(event==GpsStatus.GPS_EVENT_STARTED){
+                }
+                else if(event==GpsStatus.GPS_EVENT_STARTED)
+                {
                     //定位启动
-                }else if(event==GpsStatus.GPS_EVENT_STOPPED){
+                }
+                else if(event==GpsStatus.GPS_EVENT_STOPPED)
+                {
                     //定位结束
                 }
             }
@@ -194,8 +288,14 @@ public class LocationUtil
      * 获取所有卫星状态
      * @return
      */
-    public static List<GpsSatellite> getGpsStatus()
+    public List<GpsSatellite> getGpsStatus()
     {
+        if ( ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED
+          && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
+        {
+            return null;
+        }
+
         List<GpsSatellite> result = new ArrayList<GpsSatellite>();
         GpsStatus gpsStatus = locationManager.getGpsStatus(null); // 取当前状态
         //获取默认最大卫星数
