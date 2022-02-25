@@ -30,7 +30,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -43,8 +42,6 @@ import com.google.zxing.client.android.clipboard.ClipboardInterface;
  * @author dswitkin@google.com (Daniel Switkin)
  */
 public final class ShareActivity extends Activity {
-
-  private static final String TAG = ShareActivity.class.getSimpleName();
 
   private static final int PICK_BOOKMARK = 0;
   private static final int PICK_CONTACT = 1;
@@ -97,7 +94,7 @@ public final class ShareActivity extends Activity {
     public boolean onKey(View view, int keyCode, KeyEvent event) {
       if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
         String text = ((TextView) view).getText().toString();
-        if (text != null && !text.isEmpty()) {
+        if (!text.isEmpty()) {
           launchSearch(text);
         }
         return true;
@@ -107,11 +104,8 @@ public final class ShareActivity extends Activity {
   };
 
   private void launchSearch(String text) {
-    Intent intent = new Intent(Intents.Encode.ACTION);
-    intent.addFlags(Intents.FLAG_NEW_DOC);
-    intent.putExtra(Intents.Encode.TYPE, Contents.Type.TEXT);
+    Intent intent = buildEncodeIntent(Contents.Type.TEXT);
     intent.putExtra(Intents.Encode.DATA, text);
-    intent.putExtra(Intents.Encode.FORMAT, BarcodeFormat.QR_CODE.toString());
     startActivity(intent);
   }
 
@@ -156,15 +150,11 @@ public final class ShareActivity extends Activity {
   }
 
   private void showTextAsBarcode(String text) {
-    Log.i(TAG, "Showing text as barcode: " + text);
     if (text == null) {
       return; // Show error?
     }
-    Intent intent = new Intent(Intents.Encode.ACTION);
-    intent.addFlags(Intents.FLAG_NEW_DOC);
-    intent.putExtra(Intents.Encode.TYPE, Contents.Type.TEXT);
+    Intent intent = buildEncodeIntent(Contents.Type.TEXT);
     intent.putExtra(Intents.Encode.DATA, text);
-    intent.putExtra(Intents.Encode.FORMAT, BarcodeFormat.QR_CODE.toString());
     startActivity(intent);
   }
 
@@ -175,7 +165,6 @@ public final class ShareActivity extends Activity {
    * @param contactUri A Uri of the form content://contacts/people/17
    */
   private void showContactAsBarcode(Uri contactUri) {
-    Log.i(TAG, "Showing contact URI as barcode: " + contactUri);
     if (contactUri == null) {
       return; // Show error?
     }
@@ -254,14 +243,18 @@ public final class ShareActivity extends Activity {
       }
     }
 
-    Intent intent = new Intent(Intents.Encode.ACTION);
-    intent.addFlags(Intents.FLAG_NEW_DOC);
-    intent.putExtra(Intents.Encode.TYPE, Contents.Type.CONTACT);
+    Intent intent = buildEncodeIntent(Contents.Type.CONTACT);
     intent.putExtra(Intents.Encode.DATA, bundle);
-    intent.putExtra(Intents.Encode.FORMAT, BarcodeFormat.QR_CODE.toString());
-
-    Log.i(TAG, "Sending bundle for encoding: " + bundle);
     startActivity(intent);
+  }
+
+  private static Intent buildEncodeIntent(String type) {
+    Intent intent = new Intent(Intents.Encode.ACTION);
+    intent.setPackage("com.google.zxing.client.android");
+    intent.addFlags(Intents.FLAG_NEW_DOC);
+    intent.putExtra(Intents.Encode.TYPE, type);
+    intent.putExtra(Intents.Encode.FORMAT, BarcodeFormat.QR_CODE.toString());
+    return intent;
   }
 
   private static String massageContactData(String data) {

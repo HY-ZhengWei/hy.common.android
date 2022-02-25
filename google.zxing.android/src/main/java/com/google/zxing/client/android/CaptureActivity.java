@@ -16,6 +16,23 @@
 
 package com.google.zxing.client.android;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.Result;
+import com.google.zxing.ResultMetadataType;
+import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.clipboard.ClipboardInterface;
+import com.google.zxing.client.android.history.HistoryActivity;
+import com.google.zxing.client.android.history.HistoryItem;
+import com.google.zxing.client.android.history.HistoryManager;
+import com.google.zxing.client.android.result.ResultButtonListener;
+import com.google.zxing.client.android.result.ResultHandler;
+import com.google.zxing.client.android.result.ResultHandlerFactory;
+import com.google.zxing.client.android.result.supplement.SupplementalInfoRetriever;
+import com.google.zxing.client.android.share.ShareActivity;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -50,11 +67,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.HYControl;
@@ -93,7 +105,7 @@ import java.util.Map;
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
  */
-public final class CaptureActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
 
   /** Intent访问时，标题文字的标识 */
   public  static final String $Title                = "Title";
@@ -177,26 +189,6 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     Window window = getWindow();
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     setContentView(R.layout.capture);
-    setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-
-    ((Toolbar) findViewById(R.id.toolbar)).getBackground().setAlpha(200);
-
-    ActionBar actionBar = getSupportActionBar();
-    if (actionBar != null) {
-      actionBar.setHomeButtonEnabled(true);
-      actionBar.setDisplayHomeAsUpEnabled(true);
-
-      String v_Title = getIntent().getStringExtra($Title);
-
-      if ( !Help.isNull(v_Title) )
-      {
-        actionBar.setTitle(v_Title);
-      }
-      else
-      {
-        actionBar.setTitle(R.string.title_qrcode);
-      }
-    }
 
     hasSurface = false;
     inactivityTimer = new InactivityTimer(this);
@@ -459,7 +451,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
   {
     MenuInflater menuInflater = getMenuInflater();
     menuInflater.inflate(R.menu.capture, menu);
-
+	
     flashLightMenu = menu.findItem(R.id.qrcode_btn_flash_light);
     qrCodeType     = menu.findItem(R.id.qrcode_btn_type);
 
@@ -677,7 +669,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
   @Override
   public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+    // do nothing
   }
 
   /**
@@ -695,7 +687,6 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     boolean fromLiveScan = barcode != null;
     if (fromLiveScan) {
       historyManager.addHistoryItem(rawResult, resultHandler);
-
       // Then not from history, so beep/vibrate and we have an image to draw on
       beepManager.playBeepSoundAndVibrate();
       drawResultPoints(barcode, scaleFactor, rawResult);
@@ -795,11 +786,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
   // Put up our own UI for how to handle the decoded contents.
   private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
 
-    CharSequence displayContents = resultHandler.getDisplayContents();
-
-    if (copyToClipboard && !resultHandler.areContentsSecure()) {
-      ClipboardInterface.setText(displayContents, this);
-    }
+    maybeSetClipboard(resultHandler);
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -815,7 +802,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     ImageView barcodeImageView = (ImageView) findViewById(R.id.barcode_image_view);
     if (barcode == null) {
       barcodeImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(),
-          R.mipmap.ic_launcher));
+          R.drawable.launcher_icon));
     } else {
       barcodeImageView.setImageBitmap(barcode);
     }
@@ -828,7 +815,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
     DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
     TextView timeTextView = (TextView) findViewById(R.id.time_text_view);
-    timeTextView.setText(formatter.format(new Date(rawResult.getTimestamp())));
+    timeTextView.setText(formatter.format(rawResult.getTimestamp()));
 
 
     TextView metaTextView = (TextView) findViewById(R.id.meta_text_view);
@@ -851,6 +838,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
       }
     }
 
+    CharSequence displayContents = resultHandler.getDisplayContents();
     TextView contentsTextView = (TextView) findViewById(R.id.contents_text_view);
     contentsTextView.setText(displayContents);
     int scaledSize = Math.max(22, 32 - displayContents.length() / 4);
@@ -906,65 +894,69 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
       statusView.setText(getString(resultHandler.getDisplayTitle()) + " : " + rawResultString);
     }
 
-    if (copyToClipboard && !resultHandler.areContentsSecure()) {
-      CharSequence text = resultHandler.getDisplayContents();
-      ClipboardInterface.setText(text, this);
-    }
+    maybeSetClipboard(resultHandler);
 
-    if (source == IntentSource.NATIVE_APP_INTENT) {
-      
-      // Hand back whatever action they requested - this can be changed to Intents.Scan.ACTION when
-      // the deprecated intent is retired.
-      Intent intent = new Intent(getIntent().getAction());
-      intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-      intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
-      intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
-      byte[] rawBytes = rawResult.getRawBytes();
-      if (rawBytes != null && rawBytes.length > 0) {
-        intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
-      }
-      Map<ResultMetadataType,?> metadata = rawResult.getResultMetadata();
-      if (metadata != null) {
-        if (metadata.containsKey(ResultMetadataType.UPC_EAN_EXTENSION)) {
-          intent.putExtra(Intents.Scan.RESULT_UPC_EAN_EXTENSION,
-                          metadata.get(ResultMetadataType.UPC_EAN_EXTENSION).toString());
+    switch (source) {
+      case NATIVE_APP_INTENT:
+        // Hand back whatever action they requested - this can be changed to Intents.Scan.ACTION when
+        // the deprecated intent is retired.
+        Intent intent = new Intent(getIntent().getAction());
+        intent.addFlags(Intents.FLAG_NEW_DOC);
+        intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
+        intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
+        byte[] rawBytes = rawResult.getRawBytes();
+        if (rawBytes != null && rawBytes.length > 0) {
+          intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
         }
-        Number orientation = (Number) metadata.get(ResultMetadataType.ORIENTATION);
-        if (orientation != null) {
-          intent.putExtra(Intents.Scan.RESULT_ORIENTATION, orientation.intValue());
-        }
-        String ecLevel = (String) metadata.get(ResultMetadataType.ERROR_CORRECTION_LEVEL);
-        if (ecLevel != null) {
-          intent.putExtra(Intents.Scan.RESULT_ERROR_CORRECTION_LEVEL, ecLevel);
-        }
-        @SuppressWarnings("unchecked")
-        Iterable<byte[]> byteSegments = (Iterable<byte[]>) metadata.get(ResultMetadataType.BYTE_SEGMENTS);
-        if (byteSegments != null) {
-          int i = 0;
-          for (byte[] byteSegment : byteSegments) {
-            intent.putExtra(Intents.Scan.RESULT_BYTE_SEGMENTS_PREFIX + i, byteSegment);
-            i++;
+        Map<ResultMetadataType, ?> metadata = rawResult.getResultMetadata();
+        if (metadata != null) {
+          if (metadata.containsKey(ResultMetadataType.UPC_EAN_EXTENSION)) {
+            intent.putExtra(Intents.Scan.RESULT_UPC_EAN_EXTENSION,
+                metadata.get(ResultMetadataType.UPC_EAN_EXTENSION).toString());
+          }
+          Number orientation = (Number) metadata.get(ResultMetadataType.ORIENTATION);
+          if (orientation != null) {
+            intent.putExtra(Intents.Scan.RESULT_ORIENTATION, orientation.intValue());
+          }
+          String ecLevel = (String) metadata.get(ResultMetadataType.ERROR_CORRECTION_LEVEL);
+          if (ecLevel != null) {
+            intent.putExtra(Intents.Scan.RESULT_ERROR_CORRECTION_LEVEL, ecLevel);
+          }
+          @SuppressWarnings("unchecked")
+          Iterable<byte[]> byteSegments = (Iterable<byte[]>) metadata.get(ResultMetadataType.BYTE_SEGMENTS);
+          if (byteSegments != null) {
+            int i = 0;
+            for (byte[] byteSegment : byteSegments) {
+              intent.putExtra(Intents.Scan.RESULT_BYTE_SEGMENTS_PREFIX + i, byteSegment);
+              i++;
+            }
           }
         }
-      }
-      sendReplyMessage(R.id.return_scan_result, intent, resultDurationMS);
-      
-    } else if (source == IntentSource.PRODUCT_SEARCH_LINK) {
-      
-      // Reformulate the URL which triggered us into a query, so that the request goes to the same
-      // TLD as the scan URL.
-      int end = sourceUrl.lastIndexOf("/scan");
-      String replyURL = sourceUrl.substring(0, end) + "?q=" + resultHandler.getDisplayContents() + "&source=zxing";      
-      sendReplyMessage(R.id.launch_product_query, replyURL, resultDurationMS);
-      
-    } else if (source == IntentSource.ZXING_LINK) {
+        sendReplyMessage(R.id.return_scan_result, intent, resultDurationMS);
+        break;
 
-      if (scanFromWebPageManager != null && scanFromWebPageManager.isScanFromWebPage()) {
-        String replyURL = scanFromWebPageManager.buildReplyURL(rawResult, resultHandler);
-        scanFromWebPageManager = null;
-        sendReplyMessage(R.id.launch_product_query, replyURL, resultDurationMS);
-      }
-      
+      case PRODUCT_SEARCH_LINK:
+        // Reformulate the URL which triggered us into a query, so that the request goes to the same
+        // TLD as the scan URL.
+        int end = sourceUrl.lastIndexOf("/scan");
+        String productReplyURL = sourceUrl.substring(0, end) + "?q=" + 
+            resultHandler.getDisplayContents() + "&source=zxing";
+        sendReplyMessage(R.id.launch_product_query, productReplyURL, resultDurationMS);
+        break;
+        
+      case ZXING_LINK:
+        if (scanFromWebPageManager != null && scanFromWebPageManager.isScanFromWebPage()) {
+          String linkReplyURL = scanFromWebPageManager.buildReplyURL(rawResult, resultHandler);
+          scanFromWebPageManager = null;
+          sendReplyMessage(R.id.launch_product_query, linkReplyURL, resultDurationMS);
+        }
+        break;
+    }
+  }
+
+  private void maybeSetClipboard(ResultHandler resultHandler) {
+    if (copyToClipboard && !resultHandler.areContentsSecure()) {
+      ClipboardInterface.setText(resultHandler.getDisplayContents(), this);
     }
   }
   
@@ -1023,7 +1015,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
   private void resetStatusView() {
     resultView.setVisibility(View.GONE);
-    statusView.setText(R.string.msg_qrcode_type_2d_status);
+    statusView.setText(R.string.msg_default_status);
     statusView.setVisibility(View.VISIBLE);
     viewfinderView.setVisibility(View.VISIBLE);
     lastResult = null;

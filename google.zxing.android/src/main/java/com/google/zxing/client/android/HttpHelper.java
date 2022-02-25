@@ -16,8 +16,6 @@
 
 package com.google.zxing.client.android;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -36,11 +34,9 @@ import java.util.HashSet;
  */
 public final class HttpHelper {
 
-  private static final String TAG = HttpHelper.class.getSimpleName();
-
   private static final Collection<String> REDIRECTOR_DOMAINS = new HashSet<>(Arrays.asList(
-    "amzn.to", "bit.ly", "bitly.com", "fb.me", "goo.gl", "is.gd", "j.mp", "lnkd.in", "ow.ly",
-    "R.BEETAGG.COM", "r.beetagg.com", "SCN.BY", "su.pr", "t.co", "tinyurl.com", "tr.im"
+      "amzn.to", "bit.ly", "bitly.com", "fb.me", "goo.gl", "is.gd", "j.mp", "lnkd.in", "ow.ly",
+      "R.BEETAGG.COM", "r.beetagg.com", "SCN.BY", "su.pr", "t.co", "tinyurl.com", "tr.im"
   ));
 
   private HttpHelper() {
@@ -186,18 +182,17 @@ public final class HttpHelper {
       connection.disconnect();
     }
   }
-  
+
   private static HttpURLConnection safelyOpenConnection(URL url) throws IOException {
     URLConnection conn;
     try {
       conn = url.openConnection();
     } catch (NullPointerException npe) {
       // Another strange bug in Android?
-      Log.w(TAG, "Bad URI? " + url);
       throw new IOException(npe);
     }
     if (!(conn instanceof HttpURLConnection)) {
-      throw new IOException();
+      throw new IOException("Expected HttpURLConnection but got " + conn.getClass());
     }
     return (HttpURLConnection) conn;
   }

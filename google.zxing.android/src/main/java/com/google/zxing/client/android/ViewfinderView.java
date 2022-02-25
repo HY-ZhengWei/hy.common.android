@@ -16,6 +16,9 @@
 
 package com.google.zxing.client.android;
 
+import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.camera.CameraManager;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -27,8 +30,6 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.zxing.HYControl;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.camera.CameraManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,11 +95,11 @@ public final class ViewfinderView extends View {
     int height = canvas.getHeight();
 
     // Draw the exterior (i.e. outside the framing rect) darkened
-//    paint.setColor(resultBitmap != null ? resultColor : maskColor);
-//    canvas.drawRect(0, 0, width, frame.top, paint);
-//    canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-//    canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-//    canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+    paint.setColor(resultBitmap != null ? resultColor : maskColor);
+    canvas.drawRect(0, 0, width, frame.top, paint);
+    canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
+    canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
+    canvas.drawRect(0, frame.bottom + 1, width, height, paint);
 
     Paint.Style v_OldStyle = paint.getStyle();
 
@@ -113,7 +114,6 @@ public final class ViewfinderView extends View {
     } else {
 
       // Draw a red "laser scanner" line through the middle to show decoding is active
-
       paint.setStrokeWidth(1);
       paint.setStyle(v_OldStyle);
       paint.setColor(laserColor);

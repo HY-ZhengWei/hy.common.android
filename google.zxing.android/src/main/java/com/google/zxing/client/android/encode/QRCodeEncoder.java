@@ -35,11 +35,11 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,8 +54,6 @@ import java.util.Map;
  * @author dswitkin@google.com (Daniel Switkin)
  */
 final class QRCodeEncoder {
-
-  private static final String TAG = QRCodeEncoder.class.getSimpleName();
 
   private static final int WHITE = 0xFFFFFFFF;
   private static final int BLACK = 0xFF000000;
@@ -195,12 +193,10 @@ final class QRCodeEncoder {
         baos.write(buffer, 0, bytesRead);
       }
       vcard = baos.toByteArray();
-      vcardString = new String(vcard, 0, vcard.length, "UTF-8");
+      vcardString = new String(vcard, 0, vcard.length, StandardCharsets.UTF_8);
     } catch (IOException ioe) {
       throw new WriterException(ioe);
     }
-    Log.d(TAG, "Encoding share intent content:");
-    Log.d(TAG, vcardString);
     Result result = new Result(vcardString, vcard, null, BarcodeFormat.QR_CODE);
     ParsedResult parsedResult = ResultParser.parseResult(result);
     if (!(parsedResult instanceof AddressBookParsedResult)) {
