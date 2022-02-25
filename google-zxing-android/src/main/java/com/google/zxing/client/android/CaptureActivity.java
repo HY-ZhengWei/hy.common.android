@@ -31,7 +31,7 @@ import com.google.zxing.client.android.result.ResultHandler;
 import com.google.zxing.client.android.result.ResultHandlerFactory;
 import com.google.zxing.client.android.result.supplement.SupplementalInfoRetriever;
 import com.google.zxing.client.android.share.ShareActivity;
-
+import com.google.zxing.client.android.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;

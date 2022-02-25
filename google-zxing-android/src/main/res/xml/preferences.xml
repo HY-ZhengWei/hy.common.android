@@ -18,11 +18,11 @@
   <PreferenceCategory android:title="@string/preferences_scanning_title">
     <CheckBoxPreference
         android:key="preferences_decode_1D_product"
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:title="@string/preferences_decode_1D_product_title"/>
     <CheckBoxPreference
         android:key="preferences_decode_1D_industrial"
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:title="@string/preferences_decode_1D_industrial_title"/>
     <CheckBoxPreference
         android:key="preferences_decode_QR"
@@ -52,7 +52,7 @@
         android:title="@string/preferences_vibrate_title"/>
     <CheckBoxPreference
         android:key="preferences_copy_to_clipboard"
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:title="@string/preferences_copy_to_clipboard_title"/>
     <CheckBoxPreference
         android:key="preferences_auto_open_web"
@@ -65,7 +65,7 @@
         android:summary="@string/preferences_remember_duplicates_summary"/>
     <CheckBoxPreference
         android:key="preferences_history"
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:title="@string/preferences_history_title"
         android:summary="@string/preferences_history_summary"/>
     <CheckBoxPreference
@@ -116,7 +116,7 @@
   <PreferenceCategory android:title="@string/preferences_device_bug_workarounds_title">
     <CheckBoxPreference
         android:key="preferences_disable_continuous_focus"
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:title="@string/preferences_disable_continuous_focus_title"
         android:summary="@string/preferences_disable_continuous_focus_summary"/>
     <CheckBoxPreference
