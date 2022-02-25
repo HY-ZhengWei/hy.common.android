@@ -12,9 +12,9 @@
 ------
 以Android Studio为例
 
-    1. 将hy.common.android.aar拷贝到工程的lib目录中。
+    1. 将hy.common.android.aar拷贝到工程的libs目录中。
 
-    2. 在build.gradle添加repositories节点
+    2.1 在$Project_Home\build.gradle添加repositories节点。新版本已弃用，参见2.2
 ```
     android {
         ...
@@ -29,9 +29,43 @@
     }
 ```
 
-    3. 在build.gradle中的节点添加编译的aar包
+    2.2. 在Android Studio 3.0 及 Gradle 5.0 之后 ~ 7.5 之间不再使用步骤2.1中的配置，而是改用在$Project_Home\build.gradle中配置
+```
+    buildscript {
+    
+        repositories {
+            maven {
+                url 'https://maven.aliyun.com/nexus/content/groups/public/'
+            }
+            maven {
+                url 'https://maven.aliyun.com/repository/google'
+            }
+            maven {
+                url 'https://maven.aliyun.com/repository/jcenter'
+            }
+            flatDir {
+                dirs 'libs'
+            }
+        }
+    }
+    
+    plugins {
+        id 'com.android.application' version '7.1.2' apply false
+        id 'com.android.library' version '7.1.2' apply false
+    }
+    
+    task clean(type: Delete) {
+        delete rootProject.buildDir
+    }
+```
+
+    3. 在$Project_Home/app/build.gradle中的节点添加编译的aar包
 ```
     dependencies {
+        # Grandle 7.0以上的版本用如下引用
+        implementation files('libs/hy.common.android.aar')
+        implementation files('libs/google.zxing.android.aar')
+        
         # Grandle 4.0以上的版本用如下引用
         implementation(name: 'hy.common.android', ext: 'aar')
         implementation(name: 'google.zxing.android', ext: 'aar')
@@ -272,7 +306,7 @@
     }
 ```
 
-11. 本模块引用 zxing.jar 包，其源码链接如下
+11. 本模块引用 hy.common.zxing.jar 包，其源码链接如下
 
 引用 https://github.com/HY-ZhengWei/hy.common.base 类库
 

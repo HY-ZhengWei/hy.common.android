@@ -101,6 +101,7 @@ public final class ViewfinderView extends View {
     canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
     canvas.drawRect(0, frame.bottom + 1, width, height, paint);
 
+    // ZhengWei(HY) Add
     Paint.Style v_OldStyle = paint.getStyle();
 
     HYControl.drawMask      (canvas ,paint ,frame);
@@ -115,7 +116,7 @@ public final class ViewfinderView extends View {
 
       // Draw a red "laser scanner" line through the middle to show decoding is active
       paint.setStrokeWidth(1);
-      paint.setStyle(v_OldStyle);
+      paint.setStyle(v_OldStyle);  // ZhengWei(HY) Add
       paint.setColor(laserColor);
       paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
       scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
