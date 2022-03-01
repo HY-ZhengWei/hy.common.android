@@ -128,6 +128,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   /** 打开相册 */
   public  static final int    $Result_PhotoAlbum    = 1704;
 
+  /** 标题 */
+  private String              titleName;
+
   private static final String TAG = CaptureActivity.class.getSimpleName();
 
   private static final long DEFAULT_INTENT_RESULT_DURATION_MS = 1500L;
@@ -196,6 +199,29 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     ambientLightManager = new AmbientLightManager(this);
 
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+    /*
+    ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setHomeButtonEnabled(true);
+      actionBar.setDisplayHomeAsUpEnabled(true);
+
+
+
+      if ( !Help.isNull(v_Title) )
+      {
+        actionBar.setTitle(v_Title);
+      }
+      else
+      {
+        actionBar.setTitle(R.string.title_qrcode);
+      }
+      }
+    */
+
+    // 设置标题
+    this.titleName = getIntent().getStringExtra($Title);
+    this.setTitle(this.titleName);
 
     // 竖屏
     if ( HYControl.$Direction )
@@ -321,6 +347,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       }
 
       characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+      titleName    = intent.getStringExtra($Title);
       // 两次编码同时解码  ZhengWei(HY) Add 2017-10-21
 //      String v_CharEncoding =
 //      if ( !Help.isNull(v_CharEncoding) )
@@ -999,7 +1026,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   private void displayFrameworkBugMessageAndExit() {
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle(getString(R.string.app_name));
+    builder.setTitle(Help.NVL(this.titleName ,getString(R.string.app_name)));
     builder.setMessage(getString(R.string.msg_camera_framework_bug));
     builder.setPositiveButton(R.string.button_ok, new FinishListener(this));
     builder.setOnCancelListener(new FinishListener(this));
