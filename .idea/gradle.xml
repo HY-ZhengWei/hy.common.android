@@ -15,7 +15,6 @@
             <option value="$PROJECT_DIR$/hy-common-android" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

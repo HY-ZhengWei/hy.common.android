@@ -40,4 +40,6 @@ dependencies {
     implementation files('libs/hy.common.base.jar')
     implementation files('libs/hy.common.file.jar')
     implementation files('libs/hy.common.xjava.jar')
+
+    implementation files('libs/tbs_sdk_thirdapp_v4.3.0.253_44153_sharewithdownloadwithfile_withoutGame_obfs_20220117_105333.jar')
 }
